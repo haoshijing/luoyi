@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('人才服务需求评价')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-tss-talent-evaluate" th:object="${tServices}">
+            <h4 class="form-header h3">服务信息</h4>
+            <input name="id" th:field="*{id}" type="hidden">
+            <input name="serviceStatus" id="serviceStatus" th:field="*{serviceStatus}" type="hidden">
+            <input name="handleTimes" id="handleTimes" th:field="*{handleTimes}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">服务编码：</label>
+                <div class="col-sm-8">
+                    <input name="serviceNo" th:field="*{serviceNo}" readonly class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">服务提交时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="submitTime" readonly th:value="${#dates.format(tServices.submitTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">要求办结时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="askEndTime" readonly th:value="${#dates.format(tServices.askEndTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">需求描述：</label>
+                <div class="col-sm-8">
+                    <textarea name="description" readonly class="form-control">[[*{description}]]</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">服务要求：</label>
+                <div class="col-sm-8">
+                    <textarea name="demand" readonly class="form-control">[[*{demand}]]</textarea>
+                </div>
+            </div>
+            <h4 class="form-header h3">满意度评价</h4>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">满意度:</label>
+                <div class="col-sm-8">
+                    <select id="satisfactionDegree" name="satisfactionDegree" class="form-control m-b" th:with="type=${@dict.getType('satisfaction_degree')}">
+                        <option value="">所有</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                    <span class="help-block m-b-none" style="color:darkred; font-weight: bold">注：可以评价为"基本满意"或"不满意"，申请"重办"。</span>
+
+                </div>
+                <!--<label class="col-sm-3 is-required" >满意,请点"办结"按钮;基本满意,可以点"办结"或"重办"按钮;不满意,可以点"办结"或"重办"按钮</label>-->
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">服务评价(或重办理由)：</label>
+                <div class="col-sm-8">
+                    <textarea name="satisfactionReason" class="form-control" required>[[*{satisfactionReason}]]</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-offset-5 col-sm-10">
+                    <button type="button" id = "handleBtn" disabled class="btn btn-sm btn-dark" onclick="submitHandler()"><i class="fa fa-check"></i>办 结 </button>&nbsp;
+                    <button type="button" id = "handleAgainBtn" disabled class="btn btn-sm btn-dark" onclick="resetHandler()"><i class="fa fa-check"></i>重 办 </button>&nbsp;
+                    <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "module/tss/talent/evaluate";
+        $("#form-tss-talent-evaluate").validate({
+            focusCleanup: true
+        });
+
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.modal.confirm("确认办结该服务", function () {
+                    $("#serviceStatus").val("4");
+                    $.operate.save(prefix + "/edit", $('#form-tss-talent-evaluate').serialize());
+                })
+
+            }
+        }
+
+        function resetHandler() {
+            if ($.validate.form()) {
+                $.modal.confirm("确认重办该服务", function () {
+                    var times = parseInt($("#handleTimes").val()) + 1;
+                    $("#handleTimes").val(times);
+                    $("#serviceStatus").val("0");
+                    $.operate.save(prefix + "/edit", $('#form-tss-talent-evaluate').serialize());
+                })
+            }
+        }
+
+        $("input[name='submitTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        $("input[name='askEndTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+
+        $("select[name='satisfactionDegree']").change(function() {
+                var result = $.form.selectSelects('satisfactionDegree');
+                if(result == ""){
+                    $("#handleBtn").attr("disabled",true);
+                    $("#handleBtn").removeClass("btn-primary");
+                    $("#handleBtn").addClass("btn-dark");
+                    $("#handleAgainBtn").attr("disabled",true);
+                    $("#handleAgainBtn").removeClass("btn-primary");
+                    $("#handleAgainBtn").addClass("btn-dark");
+                } else if(result == 0) {
+                    $("#handleAgainBtn").attr("disabled", true);
+                    $("#handleAgainBtn").removeClass("btn-primary");
+                    $("#handleAgainBtn").addClass("btn-dark");
+                    $("#handleBtn").removeAttr("disabled");
+                    $("#handleBtn").removeClass("btn-dark");
+                    $("#handleBtn").addClass("btn-primary");
+                } else {
+                    $("#handleBtn").removeAttr("disabled");
+                    $("#handleBtn").removeClass("btn-dark");
+                    $("#handleBtn").addClass("btn-primary");
+                    $("#handleAgainBtn").removeAttr("disabled");
+                    $("#handleAgainBtn").removeClass("btn-dark");
+                    $("#handleAgainBtn").addClass("btn-primary");
+                }
+            }
+        );
+    </script>
+</body>
+</html>

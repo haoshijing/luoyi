@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<meta charset="utf-8">
+<head th:include="include :: header('人员树选择')"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<style>
+    body{height:auto;font-family: "Microsoft YaHei";}
+    button{font-family: "SimSun","Helvetica Neue",Helvetica,Arial;}
+</style>
+<body class="hold-transition box box-main">
+
+<input id="treeId"   name="treeId"    type="hidden" th:value="${dept.deptId}"/>
+<input id="treeName" name="treeName"  type="hidden" th:value="${dept.deptName}"/>
+<input id="selectedUserIds"   name="selectedUserIds"    type="hidden" th:value="${selectedUserIds}"/>
+<input id="selectedUserNames" name="selectedUserNames"  type="hidden" th:value="${selectedUserNames}"/>
+<input id="multiSelectFlag" name="multiSelectFlag"  type="hidden" th:value="${multiSelectFlag}"/>
+
+<div class="row">
+    <div class="col-xs-10">
+        <div class="wrapper">
+            <div class="treeShowHideButton" onclick="$.tree.toggleSearch();">
+                <label id="btnShow" title="显示搜索" style="display:none;">︾</label>
+                <label id="btnHide" title="隐藏搜索">︽</label>
+            </div>
+        </div>
+        <div class="treeSearchInput" id="search">
+            <label>姓名：</label><input type="text" class="empty" id="userName" name="userName" maxlength="50"/>
+            <button class="btn" id="btn" onclick="loadUserList()"> 搜索 </button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-4">
+
+        <div class="treeExpandCollapse">
+            <a href="#" onclick="$.tree.expand()">展开</a> /
+            <a href="#" onclick="$.tree.collapse()">折叠</a>
+        </div>
+        <div id="tree" class="ztree treeselect"></div>
+    </div>
+
+
+
+    <div class="col-xs-3" style="padding-top: 10px;">
+        <h4>待选人员</h4>
+        <select name="from" id="multiselect" class="js-multiselect form-control" size="15" multiple="multiple">
+        </select>
+    </div>
+
+    <div class="col-xs-1" style="padding-top: 40px;">
+        <button type="button" id="multiselect_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
+        <button type="button" id="multiselect_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+        <button type="button" id="multiselect_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+        <button type="button" id="multiselect_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
+    </div>
+
+    <div class="col-xs-3" style="padding-top: 10px;">
+        <h4>已选人员</h4>
+        <select name="to" id="multiselect_to" class="form-control" size="15" multiple="multiple"></select>
+    </div>
+</div>
+
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+<script th:inline="javascript">
+    $(function() {
+
+        var url = ctx + "system/dept/treeData";
+        var options = {
+            url: url,
+            expandLevel: 2,
+            onClick : zOnClick
+        };
+        $.tree.init(options);
+
+        $('input[name="userName"]').on('input propertychange', function() {
+            loadUserList();
+        });
+
+        //获取多选标记
+        var multiSelectFlag = $("#multiSelectFlag").val();
+
+        //如果是非多选，进行如下处理，变成单选
+        if(!multiSelectFlag || multiSelectFlag != 'true'){
+
+            $("#multiselect_rightSelected").click(function(){
+
+                var checkValue=$("#multiselect").val();
+
+                if(checkValue != ''){
+
+                    $("#multiselect_to option").each(function(){  //遍历所有option
+                        var val = $(this).val();   //获取option值
+                        var text = $(this).text(); //获取option文本内容
+                        if(val!= ''){
+                            $("#multiselect").append("<option value='" +  val + "'>" +  text + "</option>");
+                        }
+                    });
+
+                    $("#multiselect_to").find("option").remove();
+                }
+
+            });
+
+            $("#multiselect_rightAll").hide();
+            $("#multiselect_leftAll").hide();
+
+        }
+
+
+
+        //1、初始化左右员工选择器
+        $('#multiselect').multiselect({
+            includeSelectAllOptions:true
+        });
+
+        //2、加载已被选择的人员
+        var selectedUserIds = $("#selectedUserIds").val();
+        var selectedUserNames = $("#selectedUserNames").val();
+
+        if(selectedUserIds != ''){
+            var idsArray = selectedUserIds.split(",");
+            var namesArray = selectedUserNames.split(",");
+            for(var i=0; i<idsArray.length; i++){
+                $("#multiselect_to").append("<option value='" +  idsArray[i] + "'>" +  namesArray[i] + "</option>");
+            }
+        }
+
+        //3、加载所有人员列表
+        loadUserList();
+
+    });
+
+    //点击部门树事件
+    function zOnClick(event, treeId, treeNode) {
+        var treeId = treeNode.id;
+        var treeName = treeNode.name;
+        $("#treeId").val(treeId);
+        $("#treeName").val(treeName);
+        loadUserList(treeId);
+    }
+
+    //加载人员方法
+    function loadUserList(deptId){
+
+        //清空当前待选择人员框列表
+        $("#multiselect").find("option").remove();
+
+        var userName = $("#userName").val();
+
+        var selectedUserIds = "";
+
+        //获取当前已选人员ids,用于过滤
+        $("#multiselect_to option").each(function(){  //遍历所有option
+            var val = $(this).val();   //获取option值
+            if(val!= ''){
+                selectedUserIds = selectedUserIds + val + ",";
+            }
+        });
+
+        //加载待选人员数据
+        $.ajax({
+            type: "get",
+            url: ctx +"system/user/listForTree",
+            traditional: true,
+            dataType : "json",
+            data:{
+                deptId : deptId,
+                userName : userName
+            },
+            success:function(result){
+
+                for (var i = 0; i < result.userList.length; i++) {//加载未拥有的角色  这里根据后台传递的对象循环添加
+                    //与当前所选人员进行对比，待选人员中过滤掉已选的人员
+                    if(selectedUserIds != ''){
+                        var idsArray = selectedUserIds.split(",");
+                        var flag = true;
+                        for(var k=0; k<idsArray.length; k++){
+                            if( idsArray[k] == result.userList[i].userId){
+                                flag = false;
+                            }
+                        }
+                        if(flag){
+                            $("#multiselect").append("<option value='" + result.userList[i].userId + "'>" + result.userList[i].userName + "</option>");
+                        }
+                    }else{
+                        $("#multiselect").append("<option value='" + result.userList[i].userId + "'>" + result.userList[i].userName + "</option>");
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

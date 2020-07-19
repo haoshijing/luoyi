@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.module.tss.mapper.TServicesMapper">
+    
+    <resultMap type="TServices" id="TServicesResult">
+        <result property="id"    column="id"    />
+        <result property="serviceNo"    column="service_no"    />
+        <result property="teacherNo"    column="teacher_no"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="belongUnitNo"    column="belong_unit_no"    />
+        <result property="belongUnitName"    column="belong_unit_name"    />
+        <result property="phone"    column="phone"    />
+        <result property="submitTime"    column="submit_time"    />
+        <result property="askEndTime"    column="ask_end_time"    />
+        <result property="description"    column="description"    />
+        <result property="demand"    column="demand"    />
+        <result property="remark"    column="remark"    />
+        <result property="assignorNo"    column="assignor_no"    />
+        <result property="assignorName"    column="assignor_name"    />
+        <result property="assignTime"    column="assign_time"    />
+        <result property="assignRemark"    column="assign_remark"    />
+        <result property="handleUnitNo"    column="handle_unit_no"    />
+        <result property="handleUnitName"    column="handle_unit_name"    />
+        <result property="handlerNo"    column="handler_no"    />
+        <result property="handlerName"    column="handler_name"    />
+        <result property="handleTime"    column="handle_time"    />
+        <result property="viceHandleUnitNo"    column="vice_handle_unit_no"    />
+        <result property="applyEndTime"    column="apply_end_time"    />
+        <result property="serviceEndTime"    column="service_end_time"    />
+        <result property="satisfactionDegree"    column="satisfaction_degree"    />
+        <result property="serviceStatus"    column="service_status"    />
+        <result property="satisfactionReason"    column="satisfaction_reason"    />
+        <result property="handleTimes"    column="handle_times"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTServicesVo">
+        select id, service_no, teacher_no, teacher_name, belong_unit_no, belong_unit_name, phone, submit_time, ask_end_time, description, demand, remark, assignor_no, assignor_name, assign_time, assign_remark, handle_unit_no, handle_unit_name, handler_no, handler_name, handle_time, vice_handle_unit_no, apply_end_time, service_end_time, satisfaction_degree, service_status, satisfaction_reason, handle_times, del_flag from t_services
+    </sql>
+
+
+    <select id="selectTServicesList" parameterType="TServices" resultMap="TServicesResult">
+        <include refid="selectTServicesVo"/>
+        <where>  
+            <if test="serviceNo != null  and serviceNo != ''"> and service_no = #{serviceNo}</if>
+            <if test="teacherNo != null  and teacherNo != ''"> and teacher_no = #{teacherNo}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="belongUnitName != null  and belongUnitName != ''"> and belong_unit_name = #{belongUnitName}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(submit_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(submit_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="demand != null  and demand != ''"> and demand = #{demand}</if>
+            <if test="assignorName != null  and assignorName != ''"> and assignor_name like concat('%', #{assignorName}, '%')</if>
+            <if test="assignTime != null "> and assign_time = #{assignTime}</if>
+            <if test="handleUnitNo != null  and handleUnitNo != ''"> and handle_unit_no = #{handleUnitNo}</if>
+            <if test="handleUnitName != null  and handleUnitName != ''"> and handle_unit_name = #{handleUnitName}</if>
+            <if test="handlerNo != null  and handlerNo != ''"> and handler_no = #{handlerNo}</if>
+            <if test="handlerName != null  and handlerName != ''"> and handler_name like concat('%', #{handlerName}, '%')</if>
+            <if test="handleTime != null "> and handle_time = #{handleTime}</if>
+            <if test="serviceEndTime != null "> and service_end_time = #{serviceEndTime}</if>
+            <if test="satisfactionDegree != null  and satisfactionDegree != ''"> and satisfaction_degree = #{satisfactionDegree}</if>
+            <if test="serviceStatus != null  and serviceStatus != ''"> and service_status = #{serviceStatus}</if>
+            <if test="handleTimes != null "> and handle_times = #{handleTimes}</if>
+        </where>
+    </select>
+
+    <select id="selectHandlingTServicesList" parameterType="TServices" resultMap="TServicesResult">
+        <include refid="selectTServicesVo"/>
+        <where>
+            <if test="serviceNo != null  and serviceNo != ''"> and service_no = #{serviceNo}</if>
+            <if test="teacherNo != null  and teacherNo != ''"> and teacher_no = #{teacherNo}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="belongUnitName != null  and belongUnitName != ''"> and belong_unit_name = #{belongUnitName}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(submit_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(submit_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="demand != null  and demand != ''"> and demand = #{demand}</if>
+            <if test="assignorName != null  and assignorName != ''"> and assignor_name like concat('%', #{assignorName}, '%')</if>
+            <if test="assignTime != null "> and assign_time = #{assignTime}</if>
+            <if test="handleUnitNo != null  and handleUnitNo != ''"> and handle_unit_no = #{handleUnitNo}</if>
+            <if test="handleUnitName != null  and handleUnitName != ''"> and handle_unit_name = #{handleUnitName}</if>
+            <if test="handlerNo != null  and handlerNo != ''"> and handler_no = #{handlerNo}</if>
+            <if test="handlerName != null  and handlerName != ''"> and handler_name like concat('%', #{handlerName}, '%')</if>
+            <if test="handleTime != null "> and handle_time = #{handleTime}</if>
+            <if test="serviceEndTime != null "> and service_end_time = #{serviceEndTime}</if>
+            <if test="satisfactionDegree != null  and satisfactionDegree != ''"> and satisfaction_degree = #{satisfactionDegree}</if>
+            <if test="handleTimes != null "> and handle_times = #{handleTimes}</if>
+            and (service_status = '2' or service_status = '3')
+        </where>
+        ORDER BY submit_time desc
+    </select>
+    
+    <select id="selectTServicesById" parameterType="Long" resultMap="TServicesResult">
+        <include refid="selectTServicesVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTServices" parameterType="TServices" useGeneratedKeys="true" keyProperty="id">
+        insert into t_services
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serviceNo != null  and serviceNo != ''">service_no,</if>
+            <if test="teacherNo != null  and teacherNo != ''">teacher_no,</if>
+            <if test="teacherName != null  and teacherName != ''">teacher_name,</if>
+            <if test="belongUnitNo != null  and belongUnitNo != ''">belong_unit_no,</if>
+            <if test="belongUnitName != null  and belongUnitName != ''">belong_unit_name,</if>
+            <if test="phone != null  and phone != ''">phone,</if>
+            <if test="submitTime != null ">submit_time,</if>
+            <if test="askEndTime != null ">ask_end_time,</if>
+            <if test="description != null  and description != ''">description,</if>
+            <if test="demand != null  and demand != ''">demand,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="assignorNo != null  and assignorNo != ''">assignor_no,</if>
+            <if test="assignorName != null  and assignorName != ''">assignor_name,</if>
+            <if test="assignTime != null ">assign_time,</if>
+            <if test="assignRemark != null  and assignRemark != ''">assign_remark,</if>
+            <if test="handleUnitNo != null  and handleUnitNo != ''">handle_unit_no,</if>
+            <if test="handleUnitName != null  and handleUnitName != ''">handle_unit_name,</if>
+            <if test="handlerNo != null  and handlerNo != ''">handler_no,</if>
+            <if test="handlerName != null  and handlerName != ''">handler_name,</if>
+            <if test="handleTime != null ">handle_time,</if>
+            <if test="viceHandleUnitNo != null  and viceHandleUnitNo != ''">vice_handle_unit_no,</if>
+            <if test="applyEndTime != null ">apply_end_time,</if>
+            <if test="serviceEndTime != null ">service_end_time,</if>
+            <if test="satisfactionDegree != null  and satisfactionDegree != ''">satisfaction_degree,</if>
+            <if test="serviceStatus != null  and serviceStatus != ''">service_status,</if>
+            <if test="satisfactionReason != null  and satisfactionReason != ''">satisfaction_reason,</if>
+            <if test="handleTimes != null ">handle_times,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serviceNo != null  and serviceNo != ''">#{serviceNo},</if>
+            <if test="teacherNo != null  and teacherNo != ''">#{teacherNo},</if>
+            <if test="teacherName != null  and teacherName != ''">#{teacherName},</if>
+            <if test="belongUnitNo != null  and belongUnitNo != ''">#{belongUnitNo},</if>
+            <if test="belongUnitName != null  and belongUnitName != ''">#{belongUnitName},</if>
+            <if test="phone != null  and phone != ''">#{phone},</if>
+            <if test="submitTime != null ">#{submitTime},</if>
+            <if test="askEndTime != null ">#{askEndTime},</if>
+            <if test="description != null  and description != ''">#{description},</if>
+            <if test="demand != null  and demand != ''">#{demand},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="assignorNo != null  and assignorNo != ''">#{assignorNo},</if>
+            <if test="assignorName != null  and assignorName != ''">#{assignorName},</if>
+            <if test="assignTime != null ">#{assignTime},</if>
+            <if test="assignRemark != null  and assignRemark != ''">#{assignRemark},</if>
+            <if test="handleUnitNo != null  and handleUnitNo != ''">#{handleUnitNo},</if>
+            <if test="handleUnitName != null  and handleUnitName != ''">#{handleUnitName},</if>
+            <if test="handlerNo != null  and handlerNo != ''">#{handlerNo},</if>
+            <if test="handlerName != null  and handlerName != ''">#{handlerName},</if>
+            <if test="handleTime != null ">#{handleTime},</if>
+            <if test="viceHandleUnitNo != null  and viceHandleUnitNo != ''">#{viceHandleUnitNo},</if>
+            <if test="applyEndTime != null ">#{applyEndTime},</if>
+            <if test="serviceEndTime != null ">#{serviceEndTime},</if>
+            <if test="satisfactionDegree != null  and satisfactionDegree != ''">#{satisfactionDegree},</if>
+            <if test="serviceStatus != null  and serviceStatus != ''">#{serviceStatus},</if>
+            <if test="satisfactionReason != null  and satisfactionReason != ''">#{satisfactionReason},</if>
+            <if test="handleTimes != null ">#{handleTimes},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTServices" parameterType="TServices">
+        update t_services
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="serviceNo != null  and serviceNo != ''">service_no = #{serviceNo},</if>
+            <if test="teacherNo != null  and teacherNo != ''">teacher_no = #{teacherNo},</if>
+            <if test="teacherName != null  and teacherName != ''">teacher_name = #{teacherName},</if>
+            <if test="belongUnitNo != null  and belongUnitNo != ''">belong_unit_no = #{belongUnitNo},</if>
+            <if test="belongUnitName != null  and belongUnitName != ''">belong_unit_name = #{belongUnitName},</if>
+            <if test="phone != null  and phone != ''">phone = #{phone},</if>
+            <if test="submitTime != null ">submit_time = #{submitTime},</if>
+            <if test="askEndTime != null ">ask_end_time = #{askEndTime},</if>
+            <if test="description != null  and description != ''">description = #{description},</if>
+            <if test="demand != null  and demand != ''">demand = #{demand},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="assignorNo != null  and assignorNo != ''">assignor_no = #{assignorNo},</if>
+            <if test="assignorName != null  and assignorName != ''">assignor_name = #{assignorName},</if>
+            <if test="assignTime != null ">assign_time = #{assignTime},</if>
+            <if test="assignRemark != null  and assignRemark != ''">assign_remark = #{assignRemark},</if>
+            <if test="handleUnitNo != null  and handleUnitNo != ''">handle_unit_no = #{handleUnitNo},</if>
+            <if test="handleUnitName != null  and handleUnitName != ''">handle_unit_name = #{handleUnitName},</if>
+            <if test="handlerNo != null  and handlerNo != ''">handler_no = #{handlerNo},</if>
+            <if test="handlerName != null  and handlerName != ''">handler_name = #{handlerName},</if>
+            <if test="handleTime != null ">handle_Time = #{handleTime},</if>
+            <if test="viceHandleUnitNo != null  and viceHandleUnitNo != ''">vice_handle_unit_no = #{viceHandleUnitNo},</if>
+            <if test="applyEndTime != null ">apply_end_time = #{applyEndTime},</if>
+            <if test="serviceEndTime != null ">service_end_time = #{serviceEndTime},</if>
+            <if test="satisfactionDegree != null  and satisfactionDegree != ''">satisfaction_degree = #{satisfactionDegree},</if>
+            <if test="serviceStatus != null  and serviceStatus != ''">service_status = #{serviceStatus},</if>
+            <if test="satisfactionReason != null  and satisfactionReason != ''">satisfaction_reason = #{satisfactionReason},</if>
+            <if test="handleTimes != null ">handle_times = #{handleTimes},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTServicesById" parameterType="Long">
+        delete from t_services where id = #{id}
+    </delete>
+
+    <delete id="deleteTServicesByIds" parameterType="String">
+        delete from t_services where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getDfpCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='0'
+    </select>
+
+    <select id="getDbCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='1'
+    </select>
+
+    <select id="getZczbCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='2'
+    </select>
+
+    <select id="getCszbCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='3'
+    </select>
+
+    <select id="getBjCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='4'
+    </select>
+
+    <select id="getDpjCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='5'
+    </select>
+
+    <select id="getSatisfactionCount" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where satisfaction_degree=#{satisfactionDegree} and year(submit_time) = #{submitTime}
+    </select>
+
+    <select id="getServiceCount" resultType="java.util.HashMap">
+        SELECT MONTH(submit_time) AS month,COUNT(*) AS mounts FROM t_services WHERE year(submit_time) = #{submitTime} group by month(submit_time)
+    </select>
+
+    <select id="getDfpCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='0' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getDbCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='1' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getZczbCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='2' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getCszbCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='3' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getBjCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='4' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getDpjCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where service_status='5' and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getSatisfactionCountByDept" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM t_services where satisfaction_degree=#{satisfactionDegree} and year(submit_time) = #{submitTime} and handle_unit_no = #{handleUnitNo}
+    </select>
+
+    <select id="getServiceCountByDept" resultType="java.util.HashMap">
+        SELECT MONTH(submit_time) AS month,COUNT(*) AS mounts FROM t_services WHERE year(submit_time) = #{submitTime} and handle_unit_no = #{handleUnitNo} group by month(submit_time)
+    </select>
+
+</mapper>

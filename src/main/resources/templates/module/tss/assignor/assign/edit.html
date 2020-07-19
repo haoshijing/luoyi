@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('人才服务需求评价')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-tss-assignor-assign" th:object="${tServices}">
+            <h4 class="form-header h3">服务信息</h4>
+            <input name="id" th:field="*{id}" type="hidden">
+            <input name="serviceStatus" id="serviceStatus" th:field="*{serviceStatus}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">服务编码：</label>
+                <div class="col-sm-8">
+                    <input name="serviceNo" th:field="*{serviceNo}" readonly class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">服务提交时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="submitTime" readonly th:value="${#dates.format(tServices.submitTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">要求办结时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="askEndTime" readonly th:value="${#dates.format(tServices.askEndTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">需求描述：</label>
+                <div class="col-sm-8">
+                    <textarea name="description" readonly class="form-control">[[*{description}]]</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">服务要求：</label>
+                <div class="col-sm-8">
+                    <textarea name="demand" readonly class="form-control">[[*{demand}]]</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">办理次数：</label>
+                <div class="col-sm-8">
+                    <input name="handleTimes" th:field="*{handleTimes}" readonly class="form-control" type="text">
+                </div>
+            </div>
+            <h4 class="form-header h3">服务分派</h4>
+            <input name="handleUnitNo" type="hidden" th:field="*{handleUnitNo}" id="deptTreeId"/>
+            <input name="handlerNo" type="hidden" th:field="*{handlerNo}" id="handlerNo"/>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">负责人：</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input class="form-control" type="text" id="handlerName" readonly name="handlerName" th:field="*{handlerName}" required>
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+            </div>
+           <!-- <div class="form-group">
+                <label class="col-sm-3 control-label is-required">牵头部门：</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input class="form-control" type="text" name="handleUnitName" readonly id="deptTreeName" th:field="*{handleUnitName}" required>
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+            </div>-->
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">牵头单位：</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input class="form-control" type="text" placeholder="请选择处理部门" name="handleUnitName" onclick="selectDeptTree()" id="deptTreeName" th:field="*{handleUnitName}" required>
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">协办单位：</label>
+                <div class="col-sm-8">
+                    <select id="viceHandleUnitNo" class="form-control select2-multiple"  multiple>
+                        <option th:each="dept:${depts}" th:value="${dept.deptId}" th:text="${dept.deptName}" th:selected="${dept.flag}" th:disabled="${dept.status == '1'}"></option>
+                    </select>
+                    <span class="help-block m-b-none" style="color:darkred; font-weight: bold">注：牵头单位应主动联系协办单位进行线下服务。</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">办理要求：</label>
+                <div class="col-sm-8">
+                    <textarea name="assignRemark" class="form-control">[[*{assignRemark}]]</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-offset-5 col-sm-10">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>提 交 </button>&nbsp;
+                    <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "module/tss/assignor/assign";
+        $("#form-tss-assignor-assign").validate({
+            focusCleanup: true
+        });
+
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.modal.confirm("确认分派该服务由"+$("#deptTreeName").val()+"牵头办理", function () {
+                    $("#serviceStatus").val("1");
+                    var data = $('#form-tss-assignor-assign').serializeArray();
+                    var viceHandleUnitNo = $.form.selectSelects("viceHandleUnitNo");
+                    data.push({ "name": "viceHandleUnitNo", "value": viceHandleUnitNo });
+                    $.operate.save(prefix + "/edit", data);
+                })
+            }
+        }
+
+
+        $("input[name='submitTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        $("input[name='askEndTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        /*用户管理-修改-选择部门树*/
+       /* function selectDeptTree() {
+            var deptId = $.common.isEmpty($("#deptTreeId").val()) ? "100" : $("#deptTreeId").val();
+            var url = ctx + "system/dept/selectDeptTree/" + deptId;
+            var options = {
+                title: '选择部门',
+                width: "380",
+                url: url,
+                callBack: doDeptSubmit
+            };
+            $.modal.openOptions(options);
+        }
+
+        function doDeptSubmit(index, layero){
+            var tree = layero.find("iframe")[0].contentWindow.$._tree;
+            if ($.tree.notAllowParents(tree)) {
+                var body = layer.getChildFrame('body', index);
+                $("#deptTreeId").val(body.find('#treeId').val());
+                $("#deptTreeName").val(body.find('#treeName').val());
+                layer.close(index);
+            }
+        }*/
+
+        /*用户管理-新增-选择部门树*/
+        function selectDeptTree() {
+            var treeId = $("#deptTreeId").val();
+            var deptId = $.common.isEmpty(treeId) ? "1000" : $("#deptTreeId").val();
+            var url = ctx + "system/dept/selectDeptTree/" + deptId;
+            var options = {
+                title: '选择部门',
+                width: "380",
+                url: url,
+                callBack: doSubmit
+            };
+            $.modal.openOptions(options);
+        }
+
+        function doSubmit(index, layero){
+            var tree = layero.find("iframe")[0].contentWindow.$._tree;
+            if ($.tree.notAllowParents(tree)) {
+                var body = layer.getChildFrame('body', index);
+                $("#deptTreeId").val(body.find('#treeId').val());
+                $("#deptTreeName").val(body.find('#treeName').val());
+
+                var url = ctx + "system/dept/selectDeptById/" + $("#deptTreeId").val();
+
+                $.get(url,function(result){
+                    $("#handlerNo").val(result.dept.leaderNo);
+                    $("#handlerName").val(result.dept.leader);
+                });
+
+                layer.close(index);
+            }
+        }
+
+        /*
+        
+        function  selectHandlerTree() {
+            var options = {
+                title: '人员选择',
+                width: "750",
+                url: ctx + "system/user/selectUserTree?selectedUserIds=" + $("#userTreeId").val() + "&selectedUserNames=" + $("#userTreeName").val() + "&multiSelectFlag=false",
+                callBack: doHandlerSelect
+            };
+            $.modal.openOptions(options);
+        }
+
+        function doHandlerSelect(index, layero){
+
+            var body = layer.getChildFrame('body', index);
+
+            var userIds = "";
+            var userNames = "";
+            body.find("#multiselect_to option").each(function(){  //遍历所有option
+                var val = $(this).val();   //获取option值
+                var txt = $(this).text();  //获取option的文本内容
+                if(val!= '' && txt!=''){
+                    userIds = userIds + val + ",";
+                    userNames = userNames + txt + ",";
+                }
+            });
+
+            userIds = userIds.substring(0,userIds.length-1);
+            userNames = userNames.substring(0,userNames.length-1);
+
+            $("#userTreeId").val(userIds);
+            $("#userTreeName").val(userNames);
+
+            $("#deptTreeId").val(body.find('#treeId').val());
+            $("#deptTreeName").val(body.find('#treeName').val());
+            layer.close(index);
+        }*/
+
+    </script>
+</body>
+</html>
